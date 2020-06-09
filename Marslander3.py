@@ -1,5 +1,4 @@
 import sys
-import math
 
 # The trajectory will consist of the following phases:
 # Phase 1 We go vertically up to the heiht of the top of the cave
