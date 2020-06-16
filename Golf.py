@@ -28,10 +28,30 @@ class Ball():
         self.row = row
         self.col = col
         self.nmoves = nmoves
-        self.paths = []
+        self.paths = {}
     
     def findPaths(self, course):
 
+        self.paths[0] = [self.row, self.col]
+
+        if self.row - 1 > 0:
+            self.paths.append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
+        if self.row + 1 < len(course):
+            self.paths.append(_findPaths(self, course, 1, 0, self.row+1, self.col, self.paths))
+        if self.col -1 > 0:
+            self.paths.append(_findPaths(self, course, 0, -1, self.row, self.col-1, self.paths))
+        if self.col + 1 < len(course[0]):
+            self.paths.append(_findPaths(self, course, 0, 1, self.row, self.col+1, self.paths))
+
+    def _findPaths(self, course, move, dir, posrow, poscol, paths, path):
+
+        pathnum = len(paths)-1
+
+        if course[posrow][poscol] == ".":
+            if 
+            path.append([posrow, poscol])
+
+        if 
         if self.row - 1 > 0:
             self.paths.append(_findPaths(self, course, "row", -1, self.row, self.col, self.paths))
         if self.row + 1 < len(course):
@@ -40,10 +60,6 @@ class Ball():
             self.paths.append(_findPaths(self, course, "col", -1, self.row, self.col, self.paths))
         if self.col + 1 < len(course[0]):
             self.paths.append(_findPaths(self, course, "col", +1, self.row, self.col, self.paths))
-
-    def _findPaths(self, course, move, dir, posrow, poscol, paths):
-
-        path.append([course[posrow], course[poscol])
 
          
     
