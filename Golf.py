@@ -7,20 +7,39 @@ class Game():
         self.rows = rows
         self.cols = cols
         self.course = []
+        self.balls = {}
+        self.holes = {}
 
     def __str__(self):
 
-        return (str(self.rows), "x", str(self.cols))
+        return (str(self.rows)+str(self.cols)+str(b for b in self.balls)+str(h for h in self.holes))
+
+    def findAllPaths(self):
+
+        for b in self.balls:
+            self.balls[b].findPaths(self)
+
+    #def __str__(self):
+
+     #   return (str(self.rows) + "x" + str(self.cols))
+
 
 class Ball():
 
     def __init__(self, row, col, nmoves):
 
-        
         self.row = row
         self.col = col
         self.nmoves = nmoves
         self.paths = {}
+    
+    def findPaths(self, course):
+
+        self.paths = _findPaths(self, course, self.row, self.col)
+
+    def _findPaths(self, course, posrow, poscol):
+
+
     
     def __str__(self):
 
@@ -29,14 +48,14 @@ class Ball():
 
 class Hole():
 
-    def __init__(self, row, col)
+    def __init__(self, row, col):
 
         self.row = row
         self.col = col
 
-    def __str__(self)
+    def __str__(self):
 
-        return ("Hole:", str(self.row), str(self.col))
+        return ("Hole:" + str(self.row) + str(self.col))
 
 '''
 3 3
@@ -45,26 +64,26 @@ X.H
 .H1
 '''
 
-myGame = Game(3,3)
-myBalls = []
-myHoles = []
+mg = Game(3,3)
 
-myGame.course.append(["2", ".", "X"])
-myGame.course.append(["X", ".", "H"])
-myGame.course.append([".", "H", "1"])
+mg.course.append(["2", ".", "X"])
+mg.course.append(["X", ".", "H"])
+mg.course.append([".", "H", "1"])
 
-for r in range(myGame.rows):
-    for c in range(myGame.cols):
-        if myGame.course[r][c].isdigit():
-            myBalls.append(Ball(r, c, int(myGame.course[r][c])))
-        elif myGame.course[r][c] = "H":
-            myHoles.append(Hole(r,c))
+for r in range(mg.rows):
+    for c in range(mg.cols):
+        if mg.course[r][c].isdigit():
+            mg.balls[str(r)+"-"+str(c)] = Ball(r, c, int(mg.course[r][c]))
+        elif mg.course[r][c] == "H":
+            mg.holes[str(r)+"-"+str(c)] = Hole(r,c)
 
-for i in mayBalls:
-    print i
+for i in mg.balls:
+    print (mg.balls[i])
 
-for i in myHoles:
-    print i
+for i in mg.holes:
+    print (mg.holes[i])
+
+mg.findAllPaths()
 
 
 
