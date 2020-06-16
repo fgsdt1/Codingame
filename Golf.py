@@ -17,7 +17,7 @@ class Game():
     def findAllPaths(self):
 
         for b in self.balls:
-            self.balls[b].findPaths(self)
+            self.balls[b].findPaths(self.course)
 
 
 
@@ -28,15 +28,24 @@ class Ball():
         self.row = row
         self.col = col
         self.nmoves = nmoves
-        self.paths = {}
+        self.paths = []
     
     def findPaths(self, course):
 
-        self.paths = _findPaths(self, course, self.row, self.col)
+        if self.row - 1 > 0:
+            self.paths.append(_findPaths(self, course, "row", -1, self.row, self.col, self.paths))
+        if self.row + 1 < len(course):
+            self.paths.append(_findPaths(self, course, "row", +1, self.row, self.col, self.paths))
+        if self.col -1 > 0:
+            self.paths.append(_findPaths(self, course, "col", -1, self.row, self.col, self.paths))
+        if self.col + 1 < len(course[0]):
+            self.paths.append(_findPaths(self, course, "col", +1, self.row, self.col, self.paths))
 
-    def _findPaths(self, course, posrow, poscol):
+    def _findPaths(self, course, move, dir, posrow, poscol, paths):
 
+        path.append([course[posrow], course[poscol])
 
+         
     
     def __str__(self):
 
