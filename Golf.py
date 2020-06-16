@@ -1,4 +1,5 @@
 import random as rd
+import copy as copy
 
 class Game():
 
@@ -36,7 +37,7 @@ class Ball():
             self.paths[len(self.paths)] = [self.row, self, col]
             _findPaths(self, course, 1, 0, self.row+1, self.col, self.paths)
 
-        if self.row - 1 > 0:
+        if self.row - 1 >= 0:
             self.paths[len(self.paths)] = [self.row, self, col]
             _findPaths(self, course, -1, 0, self.row-1, self.col, self.paths)
 
@@ -44,7 +45,7 @@ class Ball():
             self.paths[len(self.paths)] = [self.row, self, col]
             _findPaths(self, course, 0, 1, self.row, self.col+1, self.paths)
 
-        if self.col -1 > 0:
+        if self.col -1 >= 0:
             self.paths[len(self.paths)] = [self.row, self, col]
             _findPaths(self, course, 0, -1, self.row, self.col-1, self.paths)
 
@@ -62,50 +63,41 @@ class Ball():
             # if it is out of range we stop
             if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0])
                 _findPaths(self, course, dirrow, dircol, newposrow, newposcol, self.paths))
-            
+                oldpath = []
+            else:
+                oldpath=self.paths.pop(len(self.paths)-1)
 
+            if dirrow != 1 and self.row + 1 < len(course):
+                # we create a new element of the dictionary with a copy until this moment of the path
+                if len(oldpath) != 0:
+                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                else:
+                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
+                    _findPaths(self, course, 1, 0, self.row+1, self.col, self.paths)
 
-            if posrow + 1 < len(course) and       # not at the end
-                if posrow        
+            if dirrow != -1 and self.row -1 >= 0:
+                # we create a new element of the dictionary with a copy until this moment of the path
+                if len(oldpath) != 0:
+                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                else:
+                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
+                    _findPaths(self, course, -1, 0, self.row-1, self.col, self.paths)
 
-            
-            if self.row - 1 > 0:
-            self.paths[len(self.paths)] = [self.row, self, col]
-            self.paths[len(self.paths)-1].
-                    append(_findPaths(self, course, 1, 0, self.row+1, self.col, self.paths))
+            if dircol != 1 and self.col + 1 < len(course[0]):
+                # we create a new element of the dictionary with a copy until this moment of the path
+                if len(oldpath) != 0:
+                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                else:
+                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
+                    _findPaths(self, course, 0, +1, self.row, self.col+1, self.paths)
 
-            if self.row + 1 < len(course):
-                self.paths[len(self.paths)] = [self.row, self, col]
-                self.paths[len(self.paths)-1].
-                        append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
-
-            if self.col -1 > 0:
-                self.paths[len(self.paths)] = [self.row, self, col]
-                self.paths[len(self.paths)-1].
-                        append(_findPaths(self, course, 0, 1, self.row, self.col+1, self.paths))
-
-            if self.col + 1 < len(course[0]):
-                self.paths[len(self.paths)] = [self.row, self, col]
-                self.paths[len(self.paths)-1].
-                        append(_findPaths(self, course, 0, -1, self.row, self.col-1, self.paths))
-
-
-
-
-            self.paths[len(self.paths)-1].
-                    append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
-            # if the direction matches the 
-            if paths[pathnum][-1][0] == posrow-dirrow and paths[pathnum][-1][1] == poscol-dircol:
-
-        if 
-        if self.row - 1 > 0:
-            self.paths.append(_findPaths(self, course, "row", -1, self.row, self.col, self.paths))
-        if self.row + 1 < len(course):
-            self.paths.append(_findPaths(self, course, "row", +1, self.row, self.col, self.paths))
-        if self.col -1 > 0:
-            self.paths.append(_findPaths(self, course, "col", -1, self.row, self.col, self.paths))
-        if self.col + 1 < len(course[0]):
-            self.paths.append(_findPaths(self, course, "col", +1, self.row, self.col, self.paths))
+            if dircol != -1 and self.col -1 >= 0:
+                # we create a new element of the dictionary with a copy until this moment of the path
+                if len(oldpath) != 0:
+                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                else:
+                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
+                    _findPaths(self, course, 0, -1, self.row, self.col-1, self.paths)
 
          
     
