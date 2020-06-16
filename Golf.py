@@ -32,24 +32,70 @@ class Ball():
     
     def findPaths(self, course):
 
-        self.paths[0] = [self.row, self.col]
+        if self.row + 1 < len(course):
+            self.paths[len(self.paths)] = [self.row, self, col]
+            _findPaths(self, course, 1, 0, self.row+1, self.col, self.paths)
 
         if self.row - 1 > 0:
-            self.paths.append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
-        if self.row + 1 < len(course):
-            self.paths.append(_findPaths(self, course, 1, 0, self.row+1, self.col, self.paths))
-        if self.col -1 > 0:
-            self.paths.append(_findPaths(self, course, 0, -1, self.row, self.col-1, self.paths))
+            self.paths[len(self.paths)] = [self.row, self, col]
+            _findPaths(self, course, -1, 0, self.row-1, self.col, self.paths)
+
         if self.col + 1 < len(course[0]):
-            self.paths.append(_findPaths(self, course, 0, 1, self.row, self.col+1, self.paths))
+            self.paths[len(self.paths)] = [self.row, self, col]
+            _findPaths(self, course, 0, 1, self.row, self.col+1, self.paths)
 
-    def _findPaths(self, course, move, dir, posrow, poscol, paths, path):
+        if self.col -1 > 0:
+            self.paths[len(self.paths)] = [self.row, self, col]
+            _findPaths(self, course, 0, -1, self.row, self.col-1, self.paths)
 
-        pathnum = len(paths)-1
 
+    def _findPaths(self, course, move, dirrow, dircol, posrow, poscol, paths, path):
+
+        # if it is ".", it means we can continue
         if course[posrow][poscol] == ".":
-            if 
-            path.append([posrow, poscol])
+            # we add the coordinate to the path
+            self.paths[len(self.paths)-1].append([posrow, poscol])
+
+            # it will be in the same path adding dirs to the position
+            newposrow = posrow + dirrow
+            newposcol = poscol + dircol
+            # if it is out of range we stop
+            if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0])
+                _findPaths(self, course, dirrow, dircol, newposrow, newposcol, self.paths))
+            
+
+
+            if posrow + 1 < len(course) and       # not at the end
+                if posrow        
+
+            
+            if self.row - 1 > 0:
+            self.paths[len(self.paths)] = [self.row, self, col]
+            self.paths[len(self.paths)-1].
+                    append(_findPaths(self, course, 1, 0, self.row+1, self.col, self.paths))
+
+            if self.row + 1 < len(course):
+                self.paths[len(self.paths)] = [self.row, self, col]
+                self.paths[len(self.paths)-1].
+                        append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
+
+            if self.col -1 > 0:
+                self.paths[len(self.paths)] = [self.row, self, col]
+                self.paths[len(self.paths)-1].
+                        append(_findPaths(self, course, 0, 1, self.row, self.col+1, self.paths))
+
+            if self.col + 1 < len(course[0]):
+                self.paths[len(self.paths)] = [self.row, self, col]
+                self.paths[len(self.paths)-1].
+                        append(_findPaths(self, course, 0, -1, self.row, self.col-1, self.paths))
+
+
+
+
+            self.paths[len(self.paths)-1].
+                    append(_findPaths(self, course, -1, 0, self.row-1, self.col, self.paths))
+            # if the direction matches the 
+            if paths[pathnum][-1][0] == posrow-dirrow and paths[pathnum][-1][1] == poscol-dircol:
 
         if 
         if self.row - 1 > 0:
