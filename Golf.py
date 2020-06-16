@@ -19,9 +19,6 @@ class Game():
         for b in self.balls:
             self.balls[b].findPaths(self)
 
-    #def __str__(self):
-
-     #   return (str(self.rows) + "x" + str(self.cols))
 
 
 class Ball():
