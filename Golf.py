@@ -35,22 +35,22 @@ class Ball():
 
         if self.row + 1 < len(course):
             self.paths[len(self.paths)] = [self.row, self.col]
-            _findPaths(course, 1, 0, self.row+1, self.col, self.paths)
+            self._findPaths(course, 1, 0, self.row+1, self.col)
 
         if self.row - 1 >= 0:
             self.paths[len(self.paths)] = [self.row, self.col]
-            _findPaths(course, -1, 0, self.row-1, self.col, self.paths)
+            self._findPaths(course, -1, 0, self.row-1, self.col)
 
         if self.col + 1 < len(course[0]):
             self.paths[len(self.paths)] = [self.row, self.col]
-            _findPaths(course, 0, 1, self.row, self.col+1, self.paths)
+            self._findPaths(course, 0, 1, self.row, self.col+1)
 
         if self.col -1 >= 0:
             self.paths[len(self.paths)] = [self.row, self.col]
-            _findPaths(course, 0, -1, self.row, self.col-1, self.paths)
+            self._findPaths(course, 0, -1, self.row, self.col-1)
 
 
-    def _findPaths(course, move, dirrow, dircol, posrow, poscol):
+    def _findPaths(self, course, dirrow, dircol, posrow, poscol):
 
         # if it is ".", it means we can continue
         if course[posrow][poscol] == ".":
@@ -62,7 +62,7 @@ class Ball():
             newposcol = poscol + dircol
             # if it is out of range we stop
             if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0]):
-                _findPaths(self, course, dirrow, dircol, newposrow, newposcol, self.paths))
+                self._findPaths(self, course, dirrow, dircol, newposrow, newposcol)
                 oldpath = []
             else:
                 oldpath=self.paths.pop(len(self.paths)-1)
