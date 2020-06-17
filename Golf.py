@@ -29,28 +29,28 @@ class Ball():
         self.row = row
         self.col = col
         self.nmoves = nmoves
-        self.paths = {}
+        self.paths = []
     
     def findPaths(self, course):
 
         if self.row + 1 < len(course):
-            self.paths[len(self.paths)] = [self.row, self, col]
-            _findPaths(self, course, 1, 0, self.row+1, self.col, self.paths)
+            self.paths[len(self.paths)] = [self.row, self.col]
+            _findPaths(course, 1, 0, self.row+1, self.col, self.paths)
 
         if self.row - 1 >= 0:
-            self.paths[len(self.paths)] = [self.row, self, col]
-            _findPaths(self, course, -1, 0, self.row-1, self.col, self.paths)
+            self.paths[len(self.paths)] = [self.row, self.col]
+            _findPaths(course, -1, 0, self.row-1, self.col, self.paths)
 
         if self.col + 1 < len(course[0]):
-            self.paths[len(self.paths)] = [self.row, self, col]
-            _findPaths(self, course, 0, 1, self.row, self.col+1, self.paths)
+            self.paths[len(self.paths)] = [self.row, self.col]
+            _findPaths(course, 0, 1, self.row, self.col+1, self.paths)
 
         if self.col -1 >= 0:
-            self.paths[len(self.paths)] = [self.row, self, col]
-            _findPaths(self, course, 0, -1, self.row, self.col-1, self.paths)
+            self.paths[len(self.paths)] = [self.row, self.col]
+            _findPaths(course, 0, -1, self.row, self.col-1, self.paths)
 
 
-    def _findPaths(self, course, move, dirrow, dircol, posrow, poscol, paths, path):
+    def _findPaths(course, move, dirrow, dircol, posrow, poscol):
 
         # if it is ".", it means we can continue
         if course[posrow][poscol] == ".":
@@ -61,7 +61,7 @@ class Ball():
             newposrow = posrow + dirrow
             newposcol = poscol + dircol
             # if it is out of range we stop
-            if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0])
+            if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0]):
                 _findPaths(self, course, dirrow, dircol, newposrow, newposcol, self.paths))
                 oldpath = []
             else:
@@ -73,7 +73,7 @@ class Ball():
                     self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
                 else:
                     self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 1, 0, self.row+1, self.col, self.paths)
+                    _findPaths(self, course, 1, 0, self.row+1, self.col)
 
             if dirrow != -1 and self.row -1 >= 0:
                 # we create a new element of the dictionary with a copy until this moment of the path
@@ -81,7 +81,7 @@ class Ball():
                     self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
                 else:
                     self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, -1, 0, self.row-1, self.col, self.paths)
+                    _findPaths(self, course, -1, 0, self.row-1, self.col)
 
             if dircol != 1 and self.col + 1 < len(course[0]):
                 # we create a new element of the dictionary with a copy until this moment of the path
@@ -89,7 +89,7 @@ class Ball():
                     self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
                 else:
                     self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 0, +1, self.row, self.col+1, self.paths)
+                    _findPaths(self, course, 0, +1, self.row, self.col+1)
 
             if dircol != -1 and self.col -1 >= 0:
                 # we create a new element of the dictionary with a copy until this moment of the path
@@ -97,7 +97,7 @@ class Ball():
                     self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
                 else:
                     self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 0, -1, self.row, self.col-1, self.paths)
+                    _findPaths(self, course, 0, -1, self.row, self.col-1)
 
          
     
