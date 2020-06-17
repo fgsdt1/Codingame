@@ -8,18 +8,17 @@ class Game():
         self.rows = rows
         self.cols = cols
         self.course = []
-        self.balls = {}
-        self.holes = {}
+        self.balls = []
+        self.holes = []
 
     def __str__(self):
 
-        return (str(self.rows)+str(self.cols)+str(b for b in self.balls)+str(h for h in self.holes))
+        return str(self.rows)+str(self.cols)+str(b for b in self.balls)+str(h for h in self.holes)
 
     def findAllPaths(self):
 
         for b in self.balls:
-            self.balls[b].findPaths(self.course)
-
+            b.findPaths(self.course)
 
 
 class Ball():
@@ -34,19 +33,19 @@ class Ball():
     def findPaths(self, course):
 
         if self.row + 1 < len(course):
-            self.paths[len(self.paths)] = [self.row, self.col]
+            self.paths.append([[self.row, self.col]])
             self._findPaths(course, 1, 0, self.row+1, self.col)
 
         if self.row - 1 >= 0:
-            self.paths[len(self.paths)] = [self.row, self.col]
+            self.paths.append([[self.row, self.col]])
             self._findPaths(course, -1, 0, self.row-1, self.col)
 
         if self.col + 1 < len(course[0]):
-            self.paths[len(self.paths)] = [self.row, self.col]
+            self.paths.append([[self.row, self.col]])
             self._findPaths(course, 0, 1, self.row, self.col+1)
 
         if self.col -1 >= 0:
-            self.paths[len(self.paths)] = [self.row, self.col]
+            self.paths.append([[self.row, self.col]])
             self._findPaths(course, 0, -1, self.row, self.col-1)
 
 
@@ -61,49 +60,61 @@ class Ball():
             newposrow = posrow + dirrow
             newposcol = poscol + dircol
             # if it is out of range we stop
-            if 0 <= newposrow <= len(course) and 0 <= newposcol <= len(course[0]):
-                self._findPaths(self, course, dirrow, dircol, newposrow, newposcol)
+            if 0 <= newposrow < len(course) and 0 <= newposcol < len(course[0]):
+                self._findPaths(course, dirrow, dircol, newposrow, newposcol)
                 oldpath = []
             else:
                 oldpath=self.paths.pop(len(self.paths)-1)
 
-            if dirrow != 1 and self.row + 1 < len(course):
+            # If the direction changes
+            if dirrow == 0 and posrow + 1 < len(course):
                 # we create a new element of the dictionary with a copy until this moment of the path
                 if len(oldpath) != 0:
-                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                    self.paths.append(copy.deepcopy(oldpath))
                 else:
-                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 1, 0, self.row+1, self.col)
+                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
 
-            if dirrow != -1 and self.row -1 >= 0:
+                self._findPaths(course, 1, 0, posrow + 1, poscol)
+
+            if dirrow == 0 and posrow -1 >= 0:
                 # we create a new element of the dictionary with a copy until this moment of the path
                 if len(oldpath) != 0:
-                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                    self.paths.append(copy.deepcopy(oldpath))
                 else:
-                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, -1, 0, self.row-1, self.col)
+                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
+                self._findPaths(course, -1, 0, posrow - 1, poscol)
 
-            if dircol != 1 and self.col + 1 < len(course[0]):
+            if dircol == 0 and poscol + 1 < len(course[0]):
                 # we create a new element of the dictionary with a copy until this moment of the path
                 if len(oldpath) != 0:
-                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
+                    self.paths.append(copy.deepcopy(oldpath))
                 else:
-                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 0, +1, self.row, self.col+1)
+                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
 
-            if dircol != -1 and self.col -1 >= 0:
+                self._findPaths(course, 0, +1, posrow, poscol+1)
+
+            if dircol == 0 and poscol -1 >= 0:
                 # we create a new element of the dictionary with a copy until this moment of the path
                 if len(oldpath) != 0:
-                    self.paths[len(self.paths)] = copy.deepcopy(self.paths[len(self.paths)-1])
-                else:
-                    self.paths[len(self.paths)] = copy.deepcopy(oldpath)
-                    _findPaths(self, course, 0, -1, self.row, self.col-1)
+                    self.paths.append(copy.deepcopy(oldpath))
 
-         
-    
+                else:
+                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
+
+                self._findPaths(course, 0, -1, posrow, poscol - 1)
+
+        # if it is a hole, we finish the search
+        if course[posrow][poscol] == "H":
+            # we add the coordinate to the path
+            self.paths[len(self.paths) - 1].append([posrow, poscol])
+
     def __str__(self):
 
-        return ("Ball: " + str(self.row) + str(self.col) + str(self.nmoves))
+        paths = ""
+        for n in self.paths:
+            print (n)
+            paths += str(n)
+        return "Ball: " + str(self.row) + str(self.col) + str(self.nmoves) + paths
 
 
 class Hole():
@@ -115,7 +126,7 @@ class Hole():
 
     def __str__(self):
 
-        return ("Hole:" + str(self.row) + str(self.col))
+        return "Hole:" + str(self.row) + str(self.col)
 
 '''
 3 3
@@ -123,27 +134,33 @@ class Hole():
 X.H
 .H1
 '''
+'''
+mg.course.append(["2", ".", "X"])
+mg.course.append(["X", ".", "H"])
+mg.course.append([".", "H", "1"])
+'''
 
 mg = Game(3,3)
 
-mg.course.append(["2", ".", "X"])
-mg.course.append(["X", ".", "H"])
+mg.course.append(["2", ".", "."])
+mg.course.append([".", ".", "H"])
 mg.course.append([".", "H", "1"])
 
 for r in range(mg.rows):
     for c in range(mg.cols):
         if mg.course[r][c].isdigit():
-            mg.balls[str(r)+"-"+str(c)] = Ball(r, c, int(mg.course[r][c]))
+            mg.balls.append(Ball(r, c, int(mg.course[r][c])))
         elif mg.course[r][c] == "H":
-            mg.holes[str(r)+"-"+str(c)] = Hole(r,c)
+            mg.holes.append(Hole(r,c))
 
 for i in mg.balls:
-    print (mg.balls[i])
+    print (i)
 
 for i in mg.holes:
-    print (mg.holes[i])
+    print (i)
 
 mg.findAllPaths()
 
-
+for i in mg.balls:
+    print (i)
 
