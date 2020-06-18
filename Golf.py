@@ -32,81 +32,91 @@ class Ball():
     
     def findPaths(self, course):
 
+
         if self.row + 1 < len(course):
             self.paths.append([[self.row, self.col]])
-            self._findPaths(course, 1, 0, self.row+1, self.col)
+            self._findPaths(course, 1, 0, self.row+1, self.col, self.nmoves)
+            self.paths.pop()
 
         if self.row - 1 >= 0:
             self.paths.append([[self.row, self.col]])
-            self._findPaths(course, -1, 0, self.row-1, self.col)
+            self._findPaths(course, -1, 0, self.row-1, self.col, self.nmoves)
+            self.paths.pop()
 
         if self.col + 1 < len(course[0]):
             self.paths.append([[self.row, self.col]])
-            self._findPaths(course, 0, 1, self.row, self.col+1)
+            self._findPaths(course, 0, 1, self.row, self.col+1, self.nmoves)
+            self.paths.pop()
 
         if self.col -1 >= 0:
             self.paths.append([[self.row, self.col]])
-            self._findPaths(course, 0, -1, self.row, self.col-1)
+            self._findPaths(course, 0, -1, self.row, self.col-1, self.nmoves)
+            self.paths.pop()
 
+    def _findPaths(self, course, dirrow, dircol, posrow, poscol, nmoves):
 
-    def _findPaths(self, course, dirrow, dircol, posrow, poscol):
+        if nmoves == 0:
+            return False
+
+#        pathnumber = len(self.paths)-1
 
         # if it is ".", it means we can continue
         if course[posrow][poscol] == ".":
             # we add the coordinate to the path
-            self.paths[len(self.paths)-1].append([posrow, poscol])
+            self.paths[-1].append([posrow, poscol])
 
             # it will be in the same path adding dirs to the position
             newposrow = posrow + dirrow
             newposcol = poscol + dircol
             # if it is out of range we stop
             if 0 <= newposrow < len(course) and 0 <= newposcol < len(course[0]):
-                self._findPaths(course, dirrow, dircol, newposrow, newposcol)
-                oldpath = []
-            else:
-                oldpath=self.paths.pop(len(self.paths)-1)
+                self._findPaths(course, dirrow, dircol, newposrow, newposcol, nmoves)
+                self.paths[-1].pop()
 
             # If the direction changes
             if dirrow == 0 and posrow + 1 < len(course):
+                nmoves -= 1
                 # we create a new element of the dictionary with a copy until this moment of the path
-                if len(oldpath) != 0:
-                    self.paths.append(copy.deepcopy(oldpath))
-                else:
-                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
-
-                self._findPaths(course, 1, 0, posrow + 1, poscol)
+                result = self._findPaths(course, 1, 0, posrow + 1, poscol, nmoves)
+                self.paths[-1].pop()
+                nmoves += 1
 
             if dirrow == 0 and posrow -1 >= 0:
-                # we create a new element of the dictionary with a copy until this moment of the path
-                if len(oldpath) != 0:
-                    self.paths.append(copy.deepcopy(oldpath))
-                else:
-                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
-                self._findPaths(course, -1, 0, posrow - 1, poscol)
+                nmoves -= 1
+
+                result = self._findPaths(course, -1, 0, posrow - 1, poscol, nmoves)
+                self.paths[-1].pop()
+                nmoves += 1
 
             if dircol == 0 and poscol + 1 < len(course[0]):
+                nmoves -= 1
                 # we create a new element of the dictionary with a copy until this moment of the path
-                if len(oldpath) != 0:
-                    self.paths.append(copy.deepcopy(oldpath))
-                else:
-                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
-
-                self._findPaths(course, 0, +1, posrow, poscol+1)
+                result = self._findPaths(course, 0, +1, posrow, poscol+1, nmoves)
+                self.paths[-1].pop()
+                nmoves += 1
 
             if dircol == 0 and poscol -1 >= 0:
+                nmoves -= 1
                 # we create a new element of the dictionary with a copy until this moment of the path
-                if len(oldpath) != 0:
-                    self.paths.append(copy.deepcopy(oldpath))
-
-                else:
-                    self.paths.append(copy.deepcopy(self.paths[len(self.paths) - 1]))
-
-                self._findPaths(course, 0, -1, posrow, poscol - 1)
+                result = self._findPaths(course, 0, -1, posrow, poscol - 1, nmoves)
+                self.paths[-1].pop()
+                nmoves += 1
 
         # if it is a hole, we finish the search
-        if course[posrow][poscol] == "H":
+        elif course[posrow][poscol] == "H":
             # we add the coordinate to the path
-            self.paths[len(self.paths) - 1].append([posrow, poscol])
+            self.paths[-1].append([posrow, poscol])
+            self.paths.append(copy.deepcopy(self.paths[-1]))
+            return True
+
+        elif course[posrow][poscol].isdigit():
+
+            self.paths[-1].append([posrow, poscol])
+            return False
+
+        else:
+
+            return False
 
     def __str__(self):
 
@@ -140,11 +150,13 @@ mg.course.append(["X", ".", "H"])
 mg.course.append([".", "H", "1"])
 '''
 
-mg = Game(3,3)
+mg = Game(5,3)
 
 mg.course.append(["2", ".", "."])
 mg.course.append([".", ".", "H"])
-mg.course.append([".", "H", "1"])
+mg.course.append([".", "H", "."])
+mg.course.append([".", "H", "."])
+mg.course.append(["2", ".", "."])
 
 for r in range(mg.rows):
     for c in range(mg.cols):
