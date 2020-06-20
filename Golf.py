@@ -145,9 +145,17 @@ class Ball():
 
     def _findPaths(self, course, dirrow, dircol, posrow, poscol, nmoves):
 
-        # we add the coordinate to the path
+        # we add the coordinate to the paths
+        holeballfound = False
         for i in range(nmoves+1,0,-1):
             self.paths[-1].append([posrow-i*dirrow+1*dirrow, poscol-i*dircol+1*dircol])
+            if course[posrow-i*dirrow+1*dirrow][poscol-i*dircol+1*dircol] == "H" and i != 1:
+                holeballfound = True
+            if course[posrow-i*dirrow+1*dirrow][poscol-i*dircol+1*dircol].isdigit():
+                holeballfound = True
+
+        if holeballfound:
+                return False
 
         if course[posrow][poscol] == "H":
             # we add the coordinate to the path
@@ -316,9 +324,16 @@ mg.course.append(['.', '.', '.', '.', '.', '.', '.', '.'])
 mg.course.append(['.', '.', '.', '.', 'H', 'H', '.', '.'])
 mg.course.append(['.', '4', '3', '.', '.', '.', '.', '.'])
 mg.course.append(['.', '.', 'H', '3', 'H', '.', '.', '.'])
-
-
-
+'''
+mg.course.append(['4', 'E', '>', '>', '>', '>', '>', 'v'])
+mg.course.append(['v', '^', '<', '<', '<', '<', '3', 'v'])
+mg.course.append(['v', '>', '>', '>', '>', '>', 'E', 'v'])
+mg.course.append(['v', '^', '>', '>', '>', 'E', '3', 'v'])
+mg.course.append(['v', '^', '^', '>', '>', 'v', 'v', 'v'])
+mg.course.append(['v', '^', '^', '^', 'E', 'E', 'v', 'v'])
+mg.course.append(['v', '4', '3', '^', '^', '<', '<', 'v'])
+mg.course.append(['>', '>', 'E', '3', 'E', '<', '<', '<'])
+'''
 solutionok = [[">", ">", ">", "H", ".", "v"],
               [".", ">", ">", ">", "H", "v"],
               [">", ">", "H", ".", ".", "H"],
