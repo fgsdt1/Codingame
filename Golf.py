@@ -36,7 +36,11 @@ class Game():
 
         for path in self.balls[ball].paths:
             pathsok.append(path)
-            found, pathsok = self._findAllShots(ball+1, pathsok)
+            if ball + 1 == len(self.balls):
+                found = True
+            else:
+                found, pathsok = self._findAllShots(ball+1, pathsok)
+            
             if found: 
                 self.drawlines(pathsok)
                 return found, pathsok
@@ -50,9 +54,6 @@ class Game():
 
         found = False
 
-        if ball == len(self.balls):
-            return found, pathsok
-
         for path in self.balls[ball].paths:
             rightpath = True
             for coor in path:
@@ -62,7 +63,11 @@ class Game():
 
             if rightpath:
                 pathsok.append(path)
-                found, pathsok = self._findAllShots(ball+1, pathsok)
+                if ball + 1 == len(self.balls):
+                    found = True
+                else:
+                    found, pathsok = self._findAllShots(ball+1, pathsok)
+                
                 if found:
                     return found, pathsok
                 else:
@@ -73,15 +78,24 @@ class Game():
 
     def drawlines(self, pathsok):
 
-        for i in range(len(pathsok)):
-            if self.course[pathsok[i][0]][pathsok[i][1]] == "H":
-                self.course[pathsok[i][0]][pathsok[i][1]] = "."
-            else:
-                if pathsok[i][0] < pathsok[i+1][0]: self.course[pathsok[i][0]][pathsok[i][1]] = "v"
-                elif pathsok[i][0] > pathsok[i+1][0]: self.course[pathsok[i][0]][pathsok[i][1]] = "^"
-                elif pathsok[i][1] < pathsok[i+1][1]: self.course[pathsok[i][0]][pathsok[i][1]] = ">"
-                elif pathsok[i][1] > pathsok[i+1][1]: self.course[pathsok[i][0]][pathsok[i][1]] = "<"
-                else: return False
+        for path in pathsok:
+            for i in range(len(path)):
+
+                print (path)
+                print (i)
+                print (path[i])
+                print (path[i][0])
+                print (path[i])
+                print (self.course [0][0])
+
+                if self.course[path[i][0]][path[i][1]] == "H":
+                    self.course[path[i][0]][path[i][1]] = "."
+                else:
+                    if path[i][0] < path[i+1][0]: self.course[path[i][0]][path[i][1]] = "v"
+                    elif path[i][0] > path[i+1][0]: self.course[path[i][0]][path[i][1]] = "^"
+                    elif path[i][1] < path[i+1][1]: self.course[path[i][0]][path[i][1]] = ">"
+                    elif path[i][1] > path[i+1][1]: self.course[path[i][0]][path[i][1]] = "<"
+                    else: return False
 
         for row in range(len(self.course)):
             for col in range(len(self.course[0])):
