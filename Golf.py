@@ -29,23 +29,66 @@ class Game():
         for b in self.balls:
             b.findPaths(self.course)
 
-    def  findsolution(self):
+    def findAllShots(self):
+        ball = 0
+        found = False
+        pathsok = []
 
-        drawn, solution = self.findAllShots()
+        for path in self.balls[ball].paths:
+            pathsok.append(path)
+            found, pathsok = self._findAllShots(ball+1, pathsok)
+            if found: 
+                self.drawlines(pathsok)
+                return found, pathsok
+            else:
+                pathsok.pop()
+        
+        return found, pathsok
+    
 
-        if not drawn:
-            return False, []
-        else:
-            # poner los hoyos y los lagos a "."
-            for row in range(len(solution)):
-                for col in range(len(solution[0])):
-                    print(solution[row][col])
-                    if solution[row][col] in ("X", "E"):
-                        solution[row][col] = "."
-                    print(solution[row][col])
+    def _findAllShots(self, ball, pathsok):
 
-            return drawn, solution
+        found = False
 
+        if ball == len(self.balls):
+            return found, pathsok
+
+        for path in self.balls[ball].paths:
+            rightpath = True
+            for coor in path:
+                for row in pathsok:
+                    if coor in row:
+                        rightpath = False
+
+            if rightpath:
+                pathsok.append(path)
+                found, pathsok = self._findAllShots(ball+1, pathsok)
+                if found:
+                    return found, pathsok
+                else:
+                    pathsok.pop()
+        
+        return rightpath, pathsok
+    
+
+    def drawlines(self, pathsok):
+
+        for i in range(len(pathsok)):
+            if self.course[pathsok[i][0]][pathsok[i][1]] == "H":
+                self.course[pathsok[i][0]][pathsok[i][1]] = "."
+            else:
+                if pathsok[i][0] < pathsok[i+1][0]: self.course[pathsok[i][0]][pathsok[i][1]] = "v"
+                elif pathsok[i][0] > pathsok[i+1][0]: self.course[pathsok[i][0]][pathsok[i][1]] = "^"
+                elif pathsok[i][1] < pathsok[i+1][1]: self.course[pathsok[i][0]][pathsok[i][1]] = ">"
+                elif pathsok[i][1] > pathsok[i+1][1]: self.course[pathsok[i][0]][pathsok[i][1]] = "<"
+                else: return False
+
+        for row in range(len(self.course)):
+            for col in range(len(self.course[0])):
+                if self.course[row][col] not in ("v", "^", ">", "<"):
+                    self.course[row][col] = "."
+
+'''
     def findAllShots(self):
 
         ball = 0
@@ -110,7 +153,7 @@ class Game():
                 else: return False, i
 
         return True, i + 1
-
+'''
 class Ball():
 
     def __init__(self, row, col, nmoves):
@@ -341,6 +384,11 @@ solutionok = [[">", ">", ">", "H", ".", "v"],
               ["^", ".", ".", "v", ".", "."],
               ["^", ".", ".", "H", ".", "."]]
 
+mg = Game(3,3)
+
+mg.course.append(["2", ".", "X"])
+mg.course.append(["X", ".", "H"])
+mg.course.append([".", "H", "1"])
 
 for row in mg.course:
     print ("x", row)
@@ -356,8 +404,9 @@ mg.findAllPaths()
 for i in mg.balls:
     print (i)
 
+result, pathsok = mg.findAllShots()
+print (result)
+print (pathsok)
 
-drawn, solution = mg.findsolution()
-
-for row in solution:
+for row in mg.course:
     print ("-", row)
