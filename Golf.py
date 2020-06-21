@@ -102,72 +102,6 @@ class Game():
                 if self.course[row][col] not in ("v", "^", ">", "<"):
                     self.course[row][col] = "."
 
-'''
-    def findAllShots(self):
-
-        ball = 0
-        drawn = False
-        solution = copy.deepcopy(self.course)
-
-        for path in self.balls[ball].paths:
-            drawn, moves = self.drawlines(path, solution)
-            if not drawn:    # It cannot be, undo the painting
-                for coor in path:
-                    solution[coor[0]][coor[1]] = self.course[coor[0]][coor[1]]
-            else:
-                if ball < len(self.balls)-1:
-                    drawn, solution = self._findAllShots(ball+1, solution)
-                    if not drawn:
-                        for i in range(len(path)):
-                            solution[path[i][0]][path[i][1]] = self.course[path[i][0]][path[i][1]]
-                else:
-                    return drawn, solution
-
-        return drawn, solution
-
-    def _findAllShots(self, ball, solution):
-
-        drawn = False
-
-        for path in self.balls[ball].paths:
-            drawn, moves = self.drawlines(path, solution)
-            if not drawn:    # It cannot be, undo the painting
-                for i in range(moves):
-                    solution[path[i][0]][path[i][1]] = self.course[path[i][0]][path[i][1]]
-            else:
-                if ball < len(self.balls)-1:
-                    drawn, solution = self._findAllShots(ball+1, solution)
-                    if not drawn:
-                        for i in range(moves):
-                            solution[path[i][0]][path[i][1]] = self.course[path[i][0]][path[i][1]]
-                    else:
-                        return drawn, solution
-                else:
-                    return drawn, solution
-
-        return drawn, solution
-
-    def drawlines(self, path, solution):
-
-        for i in range(len(path)):
-            if solution[path[i][0]][path[i][1]] == "H":
-                # Hemos llegado al hoyo. Nunca pasará por un H si no es el último
-                solution[path[i][0]][path[i][1]] = "E"            # Lo ponemos a X para que no se lo vuelva a pasar
-                return True, i + 1
-
-            elif (solution[path[i][0]][path[i][1]].isdigit() and i != 0) or \
-                  solution[path[i][0]][path[i][1]] in (["^", "v", "<", ">"]) or \
-                  solution[path[i][0]][path[i][1]] == "E":
-                return False, i
-            else:
-                if path[i][0] < path[i+1][0]: solution[path[i][0]][path[i][1]] = "v"
-                elif path[i][0] > path[i+1][0]: solution[path[i][0]][path[i][1]] = "^"
-                elif path[i][1] < path[i+1][1]: solution[path[i][0]][path[i][1]] = ">"
-                elif path[i][1] > path[i+1][1]: solution[path[i][0]][path[i][1]] = "<"
-                else: return False, i
-
-        return True, i + 1
-'''
 class Ball():
 
     def __init__(self, row, col, nmoves):
@@ -391,18 +325,16 @@ mg.course.append(['v', '^', '^', '^', 'E', 'E', 'v', 'v'])
 mg.course.append(['v', '4', '3', '^', '^', '<', '<', 'v'])
 mg.course.append(['>', '>', 'E', '3', 'E', '<', '<', '<'])
 '''
-solutionok = [[">", ">", ">", "H", ".", "v"],
-              [".", ">", ">", ">", "H", "v"],
-              [">", ">", "H", ".", ".", "H"],
-              ["^", "X", ".", "v", ".", "X"],
-              ["^", ".", ".", "v", ".", "."],
-              ["^", ".", ".", "H", ".", "."]]
 
-mg = Game(3,3)
 
-mg.course.append(["2", ".", "X"])
-mg.course.append(["X", ".", "H"])
-mg.course.append([".", "H", "1"])
+mg = Game(6,6)
+
+mg.course.append(["3", ".", ".", "H", ".", "2"])
+mg.course.append([".", "2", ".", ".", "H", "."])
+mg.course.append([".", ".", "H", ".", ".", "H"])
+mg.course.append([".", "X", ".", "2", ".", "X"])
+mg.course.append([".", ".", ".", ".", ".", "."])
+mg.course.append(["3", ".", ".", "H", ".", "."])
 
 for row in mg.course:
     print ("x", row)
