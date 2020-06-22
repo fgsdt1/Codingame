@@ -327,6 +327,6 @@ result, pathsok = mg.findAllShots()
 
 for path in pathsok:
     print ("->", path)
-
+    
 for row in mg.course:
     print(row)
