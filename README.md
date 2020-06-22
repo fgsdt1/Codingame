@@ -1,2 +1,2 @@
 # Codingame
-Some of the most interesting Codingame challenges solutions  - in Python
+Some of the most interesting Codingame challenges solutions  - in Python 
