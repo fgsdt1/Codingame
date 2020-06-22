@@ -50,7 +50,7 @@ while True:
             direction = -1
         else:
             direction = 1
-        
+       
         if abs(h_speed) < 50:
             rot = direction*21
             power = 4
