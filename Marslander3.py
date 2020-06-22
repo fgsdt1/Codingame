@@ -163,6 +163,5 @@ while True:
 
         rot, power = verticaldescend()
 
-
     print(phase, file=sys.stderr)
     print (rot, power)
