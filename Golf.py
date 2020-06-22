@@ -7,84 +7,105 @@ class Game():
 
         self.rows = rows
         self.cols = cols
-        self.course = []
-        self.balls = []
-        self.holes = []
+        self.course = []        # Matrix to keep all the positions, individually, of the course (see sample bellow) 
+        self.balls = []         # To keep the coordinates of the balls
+        self.holes = []         # To keep the coordinates of the holes
 
     def __str__(self):
 
         return str(self.rows) + str(self.cols) + str(b for b in self.balls) + str(h for h in self.holes)
 
+    # Method to find all the balls and holes of the course
     def findBallsHoles(self):
 
         for r in range(self.rows):
             for c in range(self.cols):
+
                 if self.course[r][c].isdigit():
                     self.balls.append(Ball(r, c, int(self.course[r][c])))
+                
                 elif self.course[r][c] == "H":
                     self.holes.append(Hole(r, c))
 
+    # Method to find all valid paths (from the start to any of the holes) of every ball
     def findAllPaths(self):
 
+        # For every ball we call a ball method to find all its paths
         for b in self.balls:
             b.findPaths(self.course)
 
+    # Method to be called after finding all the paths.
+    # It will provide the stack of paths (pathsok) that together comply with the rules
     def findAllShots(self):
+
+        # We start with the first ball and call recursively
         ball = 0
         found = False
-        pathsok = []
+        pathsok = []            # Stack that will contain all the right paths
 
+        # for each path of the first ball
         for path in self.balls[ball].paths:
+            # We append the path to the list  
             pathsok.append(path)
+
+            # If there are no more balls, we stop, otherwise we call recurseively 
+            # the find function for the next ball (ball+1)
             if ball + 1 == len(self.balls):
                 found = True
             else:
                 found, pathsok = self._findAllShots(ball + 1, pathsok)
 
+            # If found is True means that we found the solution and call the method to 
+            # print it as required 
             if found:
                 self.drawlines(pathsok)
                 return found, pathsok
             else:
+                # Otherwise we delete the path appended and look for the next path of this ball
                 pathsok.pop()
 
         return found, pathsok
 
-
+    # Iterative method called to find the series of paths that together comply with all the rules
     def _findAllShots(self, ball, pathsok):
 
         found = False
 
+        # for each path of the ball we try to find the one that is compatible 
+        # with all previous paths in the pathsok list
         for path in self.balls[ball].paths:
 
-            print("working on ball:", ball, "path:", path)
             rightpath = True
+
+            # For each element in the path (coor) we check that it is not comprised in 
+            # any other previously appended path (pathsok)
             for coor in path:
                 for row in pathsok:
-                    print("comparing:", coor, "en:", row)
                     if coor in row:
                         rightpath = False
                         break
 
+            # If this path is ok, we append it to the stack 
             if rightpath:
 
-                print (path, "entrando en", pathsok)
                 pathsok.append(path)
 
+                # If there is no more balls, we return True up to the top. Otherwise we call recursively
                 if ball + 1 == len(self.balls):
                     found = True
                 else:
                     found, pathsok = self._findAllShots(ball + 1, pathsok)
 
-                print ("found", found, path, "saliendo de", pathsok[-1])
+                # If recursively we found a series of paths that comply, we return True and the stack
+                # Otherwise we delete the last item of the stack
                 if found:
                     return found, pathsok
                 else:
-                    print("borrando", pathsok[-1])
                     pathsok.pop()
-
 
         return found, pathsok
 
+    # Method to update the course changing the elements of the matrix with the correct paths as required
     def drawlines(self, pathsok):
 
         for path in pathsok:
@@ -104,23 +125,28 @@ class Game():
                     else:
                         return False
 
+        # Everything else we change to "."
         for row in range(len(self.course)):
             for col in range(len(self.course[0])):
                 if self.course[row][col] not in ("v", "^", ">", "<"):
                     self.course[row][col] = "."
 
 
+# Class to keep the ball information, including possible paths
 class Ball():
 
     def __init__(self, row, col, nmoves):
 
         self.row = row
         self.col = col
-        self.nmoves = nmoves
-        self.paths = []
+        self.nmoves = nmoves        # Initial number of moves
+        self.paths = []             # List of all possible correct paths of the ball (independent of the other balls paths)
 
+    # Method to find recursively the paths of the ball
+    # Each path will work as a stack of coordinates recursively appending or deleteng them
     def findPaths(self, course):
 
+        # For each one of the possible movements we call the function recursively
         if self.row + self.nmoves < len(course):
             self.paths.append([[self.row, self.col]])
             self._findPaths(course, 1, 0, self.row + self.nmoves, self.col, self.nmoves - 1)
@@ -141,31 +167,42 @@ class Ball():
             self._findPaths(course, 0, -1, self.row, self.col - self.nmoves, self.nmoves - 1)
             self.paths.pop()
 
+    # Recursive method to find the paths of the ball
+    # dirrow and dircol will provide information of the direction we want to move next (1, -1 or 0)
+    # posrow and poscol are the current coordinates of the path
+    # nomeves has the number of moves remaining
     def _findPaths(self, course, dirrow, dircol, posrow, poscol, nmoves):
 
-        # we add the coordinate to the paths
         holeballfound = False
+
+        # for the next nmoves and depending on the direction
+        # we add the coordinates to the paths. They will be removed later if their are not viable
         for i in range(nmoves + 1, 0, -1):
             self.paths[-1].append([posrow - i * dirrow + 1 * dirrow, poscol - i * dircol + 1 * dircol])
-            if course[posrow - i * dirrow + 1 * dirrow][poscol - i * dircol + 1 * dircol] == "H" and i != 1: # i el último movimiento
+            
+            # if crossing a ball or a hole, the paths is not valid, except if the hole is the last position (i==-1)
+            if course[posrow - i * dirrow + 1 * dirrow][poscol - i * dircol + 1 * dircol] == "H" and i != 1: 
                 holeballfound = True
             if course[posrow - i * dirrow + 1 * dirrow][poscol - i * dircol + 1 * dircol].isdigit():
                 holeballfound = True
 
+        # If a ball or hole crossed, this path is not valid
         if holeballfound:
             return False
 
+        # If we have ended in a hole we consider this path valid and create a copy in the stack 
+        # to continue searching from this point
         if course[posrow][poscol] == "H":
-            # we add the coordinate to the path
             self.paths.append(copy.deepcopy(self.paths[-1]))
             return True
 
+        # If no more moves available, this path is not valid
         if nmoves == 0:
             return False
 
         # if it is ".", it means we can continue
         if course[posrow][poscol] in ("."):
-            # it will be in the same path adding dirs to the position
+            # First check the next point in the same direction (adding dirs to the position)
             newposrow = posrow + dirrow * nmoves
             newposcol = poscol + dircol * nmoves
             # if it is out of range we stop
@@ -176,7 +213,8 @@ class Ball():
                 for i in range(nmoves):
                     self.paths[-1].pop()
 
-            # If the direction changes but it is not a lake where we cannot change direction
+            # For each new coordinate, if the direction changes but it is not a lake
+            # we call recursively to find paths in the new direction
             if dirrow == 0 and posrow + nmoves < len(course) and course[posrow + nmoves][poscol] != "X":
 
                 possible = True
@@ -184,12 +222,12 @@ class Ball():
                     if course[i][poscol] == "H" or course[i][poscol].isdigit():
                         possible = False
 
+                # If we did not go through a hole or ball....
                 if possible:
-                    # we create a new element of the dictionary with a copy until this moment of the path
                     result = self._findPaths(course, 1, 0, posrow + nmoves, poscol, nmoves - 1)
 
-                for i in range(nmoves):
-                    self.paths[-1].pop()
+                    for i in range(nmoves):
+                        self.paths[-1].pop()
 
             if dirrow == 0 and posrow - nmoves >= 0 and course[posrow - nmoves][poscol] != "X":
 
@@ -198,12 +236,12 @@ class Ball():
                     if course[i][poscol] == "H" or course[i][poscol].isdigit():
                         possible = False
 
+                # If we did not go through a hole or ball....
                 if possible:
-                    # we create a new element of the dictionary with a copy until this moment of the path
                     result = self._findPaths(course, -1, 0, posrow - nmoves, poscol, nmoves - 1)
 
-                for i in range(nmoves):
-                    self.paths[-1].pop()
+                    for i in range(nmoves):
+                        self.paths[-1].pop()
 
             if dircol == 0 and poscol + nmoves < len(course[0]) and course[posrow][poscol + nmoves] != "X":
 
@@ -212,12 +250,12 @@ class Ball():
                     if course[posrow][i] == "H" or course[posrow][i].isdigit():
                         possible = False
 
+                # If we did not go through a hole or ball....
                 if possible:
-                    # we create a new element of the dictionary with a copy until this moment of the path
                     result = self._findPaths(course, 0, 1, posrow, poscol + nmoves, nmoves - 1)
 
-                for i in range(nmoves):
-                    self.paths[-1].pop()
+                    for i in range(nmoves):
+                        self.paths[-1].pop()
 
             if dircol == 0 and poscol - nmoves >= 0 and course[posrow][poscol - nmoves] != "X":
 
@@ -226,19 +264,20 @@ class Ball():
                     if course[posrow][i] == "H" or course[posrow][i].isdigit():
                         possible = False
 
+                # If we did not go through a hole or ball....
                 if possible:
-                    # we create a new element of the dictionary with a copy until this moment of the path
                     result = self._findPaths(course, 0, -1, posrow, poscol - nmoves, nmoves - 1)
 
-                for i in range(nmoves):
-                    self.paths[-1].pop()
+                    for i in range(nmoves):
+                        self.paths[-1].pop()
 
-        # if it is a hole, we finish the search
+        # If we land in a hole, we finish the search
         elif course[posrow][poscol] == "H":
-            # we add the coordinate to the path
+            # we add the path to the paths stack by creating a copy 
             self.paths.append(copy.deepcopy(self.paths[-1]))
             return True
 
+        # If we land in a lake, we finish the search
         elif course[posrow][poscol].isdigit() or course[posrow][poscol] == "X":
 
             return False
@@ -254,7 +293,7 @@ class Ball():
             paths += (str(n) + "\n")
         return "Ball: " + str(self.row) + str(self.col) + str(self.nmoves) + "\n" + paths
 
-
+# Class to keep the hole information. Just coordinates
 class Hole():
 
     def __init__(self, row, col):
@@ -265,86 +304,9 @@ class Hole():
         return "Hole:" + str(self.row) + str(self.col)
 
 
-mg = Game(3, 3)
-
-mg.course.append(["2", ".", "X"])
-mg.course.append(["X", ".", "H"])
-mg.course.append([".", "H", "1"])
-
-mg = Game(5, 3)
-
-mg.course.append(["2", ".", "X"])
-mg.course.append([".", ".", "H"])
-mg.course.append([".", "H", "."])
-mg.course.append([".", "H", "X"])
-mg.course.append(["3", ".", "."])
-
-mg = Game(5, 5)
-
-mg.course.append(["4", ".", ".", "X", "X"])
-mg.course.append([".", "H", ".", "H", "."])
-mg.course.append([".", ".", ".", "H", "."])
-mg.course.append([".", "2", ".", ".", "2"])
-mg.course.append([".", ".", ".", ".", "."])
-
-mg = Game(6, 6)
-
-mg.course.append(["3", ".", ".", "H", ".", "2"])
-mg.course.append([".", "2", ".", ".", "H", "."])
-mg.course.append([".", ".", "H", ".", ".", "H"])
-mg.course.append([".", "X", ".", "2", ".", "X"])
-mg.course.append([".", ".", ".", ".", ".", "."])
-mg.course.append(["3", ".", ".", "H", ".", "."])
-
-mg = Game(8, 8)
-
-mg.course.append(['.', '.', '.', '.', '.', '.', '.', '4'])
-mg.course.append(['.', '.', '.', '.', 'H', 'H', '.', '2'])
-mg.course.append(['.', '.', '5', '.', '.', '.', '.', '.'])
-mg.course.append(['H', '.', '.', '.', '.', '2', '2', 'X'])
-mg.course.append(['.', '3', 'X', 'H', '.', 'H', 'X', 'X'])
-mg.course.append(['.', '.', 'X', '3', '.', 'H', '.', 'X'])
-mg.course.append(['.', '.', 'X', 'H', '.', '.', '.', '.'])
-mg.course.append(['H', '2', 'X', '.', 'H', '.', '.', '3'])
-
-mg = Game(8, 8)
-
-mg.course.append(['4', 'H', '5', '.', '.', '.', '.', '.'])
-mg.course.append(['.', '.', '.', '.', '.', '.', '3', '.'])
-mg.course.append(['.', '.', '.', '.', '.', '.', 'H', '.'])
-mg.course.append(['.', '.', '.', '.', '.', 'H', '3', '.'])
-mg.course.append(['.', '.', '.', '.', '.', '.', '.', '.'])
-mg.course.append(['.', '.', '.', '.', 'H', 'H', '.', '.'])
-mg.course.append(['.', '4', '3', '.', '.', '.', '.', '.'])
-mg.course.append(['.', '.', 'H', '3', 'H', '.', '.', '.'])
-'''
-mg.course.append(['4', 'E', '>', '>', '>', '>', '>', 'v'])
-mg.course.append(['v', '^', '<', '<', '<', '<', '3', 'v'])
-mg.course.append(['v', '>', '>', '>', '>', '>', 'E', 'v'])
-mg.course.append(['v', '^', '>', '>', '>', 'E', '3', 'v'])
-mg.course.append(['v', '^', '^', '>', '>', 'v', 'v', 'v'])
-mg.course.append(['v', '^', '^', '^', 'E', 'E', 'v', 'v'])
-mg.course.append(['v', '4', '3', '^', '^', '<', '<', 'v'])
-mg.course.append(['>', '>', 'E', '3', 'E', '<', '<', '<'])
-'''
-
-mg = Game(6, 6)
-
-mg.course.append(["3", ".", ".", "H", ".", "2"])
-mg.course.append([".", "2", ".", ".", "H", "."])
-mg.course.append([".", ".", "H", ".", ".", "H"])
-mg.course.append([".", "X", ".", "2", ".", "X"])
-mg.course.append([".", ".", ".", ".", ".", "."])
-mg.course.append(["3", ".", ".", "H", ".", "."])
-
-
-mg = Game(40,8)
-mg.course.append(['.', 'X', 'X', 'X', '.', '5', 'X', 'X', '4', 'H', '5', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '4', 'H', '.', '.', '3', 'X', 'X', 'H', '.', '2', '.', 'H', 'X', '3', '.', '.', '.'])
-mg.course.append(['X', 'X', '4', '.', 'X', '.', '.', 'X', '.', '.', '.', '.', '.', '.', '3', '.', '.', '.', '.', '.', 'H', 'H', '.', '2', 'X', '.', '.', '.', '.', '.', '5', '.', '.', '.', '.', '.', '4', 'X', 'X', '.'])
-mg.course.append(['X', '4', '.', '.', 'X', '3', '.', 'X', '.', '.', '.', '.', '.', '.', 'H', '.', '.', '.', '5', '.', '.', '.', '.', '.', 'X', 'X', 'X', 'X', 'X', 'X', 'X', '2', '.', 'H', 'X', '2', '.', '.', 'H', '.'])
-mg.course.append(['X', '.', '.', 'X', 'X', 'X', 'X', 'X', '.', '.', '.', '.', '.', 'H', '3', '.', 'H', '.', 'X', '.', '.', '2', '2', 'X', '3', 'X', 'X', 'H', '.', 'X', '2', 'X', '.', '.', '.', '2', 'H', 'H', 'X', 'H'])
-mg.course.append(['.', 'X', '.', 'X', '.', 'H', '.', 'X', '.', '.', '.', '.', '.', '.', '.', '.', 'X', '3', 'X', 'H', '.', 'H', 'X', 'X', '.', 'X', 'X', 'X', 'X', 'X', '.', 'H', '.', '.', 'H', 'X', '.', '.', '2', '.'])
-mg.course.append(['X', '.', 'H', 'X', '.', 'X', '.', 'X', '.', '.', '.', '.', 'H', 'H', '.', '.', '.', '.', 'X', '3', '.', 'H', '.', 'X', '.', '.', '.', '.', '.', 'H', '.', '.', 'X', 'X', 'X', 'X', '3', '.', '.', '.'])
+# ----------------------------------------------------------------------------------
+# Program testing (one of the many possible courses)
+# ----------------------------------------------------------------------------------
 
 mg = Game(10, 10)
 mg.course.append(['.', '.', '.', 'H', '.', '.', '.', '.', '.', '.'])
@@ -358,22 +320,13 @@ mg.course.append(['3', '.', '.', 'X', '.', '.', '.', '.', '.', '.'])
 mg.course.append(['.', '.', '.', '.', 'X', 'X', 'X', 'X', 'X', '.'])
 mg.course.append(['.', '.', '.', '.', 'H', '.', 'H', '.', '.', '.'])
 
-for row in mg.course:
-    print("x", row)
-
 mg.findBallsHoles()
-
-for i in mg.holes:
-    print(i)
-
 mg.findAllPaths()
 
-for i in mg.balls:
-    print(i)
-
 result, pathsok = mg.findAllShots()
-print(result)
-print(pathsok)
+
+for path in pathsok:
+    print ("->", path)
 
 for row in mg.course:
-    print("-", row)
+    print(row)
